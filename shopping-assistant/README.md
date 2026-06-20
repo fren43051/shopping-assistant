@@ -1,86 +1,48 @@
-# shopping-assistant
+# 🛡️ Secure AI Shopping Assistant
 
-Simple ReAct agent
-Agent generated with `agents-cli` version `0.5.0`
+Welcome to the **Secure AI Shopping Assistant** repository. This project demonstrates the secure lifecycle development of a generative AI agent using the Google Agent Development Kit (ADK), Test-Driven Development (TDD), and proactive security gating.
 
-## Project Structure
+This project was built as part of the "Vibecode y protección del ciclo de vida de un agente de IA con Antigravity y TDD" lab.
 
-```
-shopping-assistant/
-├── app/         # Core agent code
-│   ├── agent.py               # Main agent logic
-│   └── app_utils/             # App utilities and helpers
-├── tests/                     # Unit, integration, and load tests
-├── GEMINI.md                  # AI-assisted development guide
-└── pyproject.toml             # Project dependencies
-```
+## 🌟 Key Features
+- **Generative AI Agent**: A fully functional retail assistant powered by Google's `gemini-flash-latest` model.
+- **Dynamic Tool Calling**: The agent can autonomously execute business tools such as:
+  - `redeem_discount_code`: Safe redemption with replay protections.
+  - `award_loyalty_points`: Business state tracking and validation.
+  - `process_cart_checkout`: Secure purchasing with Insecure Direct Object Reference (IDOR) protection.
+  - `update_discount_status`: Administrative control via Role-Based Access Control (RBAC).
 
-> 💡 **Tip:** Use [Gemini CLI](https://github.com/google-gemini/gemini-cli) for AI-assisted development - project context is pre-configured in `GEMINI.md`.
+## 🔐 Security Architecture
+This project implements defense-in-depth methodologies:
 
-## Requirements
+1. **STRIDE Threat Modeling**: Analyzed system boundaries to identify and mitigate risks related to Spoofing, Tampering, and Elevation of Privilege (`threat_model.md`).
+2. **TDD Planning Gate**: All agent tools were built using strict Test-Driven Development (TDD) via `pytest`. Tests explicitly validate security boundaries (e.g., rejecting unauthorized IDs, preventing duplicate transactions) *before* implementation.
+3. **Pydantic Validation**: Strong input typing and sanitization at the tool boundaries to block prompt injection and malformed LLM outputs.
+4. **Local Security Gating (Pre-Commit)**: Integrated Git hooks utilizing `Semgrep` to automatically detect and block hardcoded API keys and insecure patterns before they leave the developer's machine.
+5. **Tool Execution Sandboxing**: Implemented `PreToolUse` hooks (`validate_tool_call.py`) to intercept and validate raw command executions within the environment.
 
-Before you begin, ensure you have:
-- **uv**: Python package manager (used for all dependency management in this project) - [Install](https://docs.astral.sh/uv/getting-started/installation/) ([add packages](https://docs.astral.sh/uv/concepts/dependencies/) with `uv add <package>`)
-- **agents-cli**: Agents CLI - Install with `uv tool install google-agents-cli`
-- **Google Cloud SDK**: For GCP services - [Install](https://cloud.google.com/sdk/docs/install)
+## 🚀 Running Locally
 
+1. **Install dependencies**:
+   ```bash
+   uv sync
+   ```
+2. **Authenticate with Google Cloud**:
+   ```bash
+   gcloud auth application-default login
+   export GOOGLE_GENAI_USE_ENTERPRISE="TRUE"
+   export GOOGLE_CLOUD_PROJECT="your-project-id"
+   export GOOGLE_CLOUD_LOCATION="us-central1"
+   ```
+3. **Launch the Agent Playground**:
+   ```bash
+   uv run agents-cli playground --port 8081
+   ```
+   *Navigate to the provided localhost URL in your browser to interact with the agent.*
 
-## Quick Start
+## 🧪 Testing
 
-Install `agents-cli` and its skills if not already installed:
-
+Run the full security and business logic test suite:
 ```bash
-uvx google-agents-cli setup
+uv run pytest
 ```
-
-Install required packages:
-
-```bash
-agents-cli install
-```
-
-Test the agent with a local web server:
-
-```bash
-agents-cli playground
-```
-
-You can also use features from the [ADK](https://adk.dev/) CLI with `uv run adk`.
-
-## Commands
-
-| Command              | Description                                                                                 |
-| -------------------- | ------------------------------------------------------------------------------------------- |
-| `agents-cli install` | Install dependencies using uv                                                         |
-| `agents-cli playground` | Launch local development environment                                                  |
-| `agents-cli lint`    | Run code quality checks                                                               |
-| `agents-cli eval`    | Evaluate agent behavior (generate, grade, analyze, and more — see `agents-cli eval --help`) |
-| `uv run pytest tests/unit tests/integration` | Run unit and integration tests                                                        |
-
-## 🛠️ Project Management
-
-| Command | What It Does |
-|---------|--------------|
-| `agents-cli scaffold enhance` | Add CI/CD pipelines and Terraform infrastructure |
-| `agents-cli infra cicd` | One-command setup of entire CI/CD pipeline + infrastructure |
-| `agents-cli scaffold upgrade` | Auto-upgrade to latest version while preserving customizations |
-
----
-
-## Development
-
-Edit your agent logic in `app/agent.py` and test with `agents-cli playground` - it auto-reloads on save.
-
-## Deployment
-
-```bash
-gcloud config set project <your-project-id>
-agents-cli deploy
-```
-
-To add CI/CD and Terraform, run `agents-cli scaffold enhance`.
-To set up your production infrastructure, run `agents-cli infra cicd`.
-
-## Observability
-
-Built-in telemetry exports to Cloud Trace, BigQuery, and Cloud Logging.
